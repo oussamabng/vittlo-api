@@ -22,10 +22,10 @@ import { Tracking } from './tracking/entities/tracking.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'postgres',
-      port: 5430,
+      host: 'localhost',
+      port: 5432,
       username: 'postgres',
-      password: 'postgres',
+      password: 'password',
       database: 'oussama',
       entities: [User, Mission, Order, Tracking],
       synchronize: true,
