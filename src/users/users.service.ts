@@ -326,6 +326,7 @@ export class UsersService implements OnModuleInit {
 
   async addDeliveryToMission(missionId: number, userId: number) {
     const user = await this.findOne(userId);
+
     if (!user) {
       throw new NotFoundException('User not found ');
     }
@@ -336,6 +337,16 @@ export class UsersService implements OnModuleInit {
 
     if (!mission) {
       throw new NotFoundException('Mission not found ');
+    }
+
+    if (mission.delivery) {
+      throw new BadRequestException('Mission already have a delivery');
+    }
+
+    if (mission.delivery.id === user.id) {
+      throw new BadRequestException(
+        'Delivery already assigned to this mission',
+      );
     }
 
     mission.delivery = user;

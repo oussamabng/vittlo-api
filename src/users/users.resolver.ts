@@ -15,6 +15,7 @@ import { ResponseUserDto } from './dto/response-user.dto';
 import { UserStatus } from './enums/user-status.dto';
 import { AdminGuard } from './guards/admin.guard';
 import { SearchDto } from './dto/search-dto';
+import { DeliveryGuard } from './guards/delivery.guard';
 
 @Resolver()
 export class UsersResolver {
@@ -70,10 +71,11 @@ export class UsersResolver {
     return this.usersService.updateStatusDelivery(userId, status);
   }
 
+  @UseGuards(DeliveryGuard)
   @Mutation(() => User, { name: 'addDeliveryToMission' })
   addDeliveryToMission(
     @Args('missionId', { type: () => Number }) missionId: number,
-    @Args('userId', { type: () => Number }) userId: number,
+    @CurrentUserId() userId: number,
   ) {
     return this.usersService.addDeliveryToMission(missionId, userId);
   }
