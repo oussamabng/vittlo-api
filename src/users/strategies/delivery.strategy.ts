@@ -7,6 +7,7 @@ import { UserStatus } from '../enums/user-status.dto';
 
 type JwtPayload = {
   sub: number;
+  exp: number;
 };
 
 @Injectable()
@@ -21,6 +22,11 @@ export class DeliveryStrategy extends PassportStrategy(Strategy, 'delivery') {
 
   async validate(payload: JwtPayload) {
     const userId = payload.sub ? payload.sub : null;
+    const exp = payload?.exp;
+
+    if (new Date() > new Date(exp * 1000)) {
+      return false;
+    }
 
     const user = await this.userService.findOne(userId);
 

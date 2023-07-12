@@ -62,6 +62,12 @@ export class UsersResolver {
     return this.usersService.getAllDeliveryUsers(paginationDto, searchDto);
   }
 
+  @UseGuards(DeliveryGuard)
+  @Query(() => User)
+  me(@CurrentUserId() userId: number) {
+    return this.usersService.me(userId);
+  }
+
   @UseGuards(AdminGuard)
   @Mutation(() => User)
   updateStatusDelivery(

@@ -139,6 +139,7 @@ type ResponseOrderDto {
 
 type Query {
   getAllDeliveryUsers(pagination: PaginationDto!, search: SearchDto!): ResponseUserDto!
+  me: User!
   helloWorld: String!
   orders(pagination: PaginationDto!, search: SearchDto!): ResponseOrderDto!
   order(id: Int!): Order!

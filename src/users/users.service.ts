@@ -385,4 +385,14 @@ export class UsersService implements OnModuleInit {
 
     return user;
   }
+
+  async me(userId: number) {
+    const user = await this.repo.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+
+    return user;
+  }
 }
