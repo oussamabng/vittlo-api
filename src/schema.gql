@@ -1,0 +1,208 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Tracking {
+  id: ID!
+  currentPlace: String
+  status: TrackingStatus!
+  type: TrackingStatus!
+  delivery: User
+  order: Order
+  mission: Mission
+  createdAt: DateTime!
+}
+
+enum TrackingStatus {
+  PENDING
+  IN_PROGRESS
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mission {
+  id: ID!
+  delivery: User
+  orders: [Order!]
+  tracking: [Tracking!]
+  status: MissionStatus!
+  numberOfOrders: Float!
+  startingAdress: String
+  endingAdress: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum MissionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+type Order {
+  id: ID!
+  productName: String!
+  senderFullName: String!
+  senderPhoneNumber: String!
+  productPrice: Float!
+  shippingAddress: String!
+  destinationLat: Float!
+  destinationLong: Float!
+  delivery: User
+  tracking: [Tracking!]
+  deliveryFees: DeliveryFees!
+  trackingCode: String!
+  status: OrderStatus!
+  mission: Mission
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum DeliveryFees {
+  SHORT_DISTANCE
+  MEDIUM_DISTANCE
+  LONG_DISTANCE
+  EXPRESS
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+type User {
+  id: ID!
+  email: String!
+  role: UserRole!
+  status: UserStatus!
+  phoneNumber: String
+  orders: [Order!]
+  adress: String
+  dateOfBirth: DateTime
+  carModel: String
+  licensePlate: String
+  carColor: String
+  missions: [Mission!]
+  tracking: [Tracking!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum UserRole {
+  ADMIN
+  DELIVERY
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+type ResponseTokenDto {
+  access_token: String!
+  refresh_token: String!
+}
+
+type DeliveryResponseDto {
+  access_token: String
+  refresh_token: String
+  status: String!
+}
+
+type ResponseUserDto {
+  items: [User!]
+  totalCount: Int
+  currentPage: Int
+  totalPages: Int
+  hasNextPage: Boolean
+}
+
+type ResponseOrderDto {
+  items: [Order!]
+  totalCount: Int
+  currentPage: Int
+  totalPages: Int
+  hasNextPage: Boolean
+}
+
+type Query {
+  getAllDeliveryUsers(pagination: PaginationDto!, search: SearchDto!): ResponseUserDto!
+  helloWorld: String!
+  orders(pagination: PaginationDto!, search: SearchDto!): ResponseOrderDto!
+  order(id: Int!): Order!
+  missions: [Mission!]!
+  currentPositionMission(id: Int!): Order
+  mission(id: Int!): Mission!
+  tracking(id: Int!): Tracking!
+  orderTracking(order_id: Int!): [Tracking!]!
+  getOrderTrackingByCode(trackingCode: String!): [Tracking!]!
+}
+
+input PaginationDto {
+  page: Int! = 1
+  limit: Int! = 1
+}
+
+input SearchDto {
+  keyword: String! = ""
+}
+
+type Mutation {
+  createAdmin(input: CreateAdminDto!): String!
+  createDelivery(input: CreateDeliveryDto!): User!
+  loginAdmin(input: LoginAdmin!): ResponseTokenDto!
+  loginDelivery(input: LoginAdmin!): DeliveryResponseDto!
+  verifyOtpDelivery(input: VerifyOtp!): String!
+  refreshToken: ResponseTokenDto!
+  updateStatusDelivery(userId: Float!, status: String!): User!
+  addDeliveryToMission(missionId: Float!, userId: Float!): User!
+  createOrder(input: CreateOrderDto!): Order!
+  addOrderToMission(missionId: Int!, orderId: Int!): Order!
+  createMission: Mission!
+  moveToNextOrder(id: Int!): String!
+}
+
+input CreateAdminDto {
+  email: String!
+  password: String!
+}
+
+input CreateDeliveryDto {
+  email: String!
+  password: String!
+  licensePlate: String
+  phoneNumber: String
+}
+
+input LoginAdmin {
+  email: String!
+  password: String!
+}
+
+input VerifyOtp {
+  code: String!
+  email: String!
+}
+
+input CreateOrderDto {
+  productName: String!
+  productPrice: Float!
+  shippingAddress: String!
+  destinationLat: Float!
+  senderFullName: String!
+  senderPhoneNumber: String!
+  destinationLong: Float!
+  deliveryFees: DeliveryFees!
+}
