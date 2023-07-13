@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMissionDto, OptimalRouteDto } from './dto/create-mission.dto';
 import { Mission } from './entities/mission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { ResponseMissionDto } from './dto/response-missions.dto';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
@@ -10,6 +10,8 @@ import { MissionStatus } from './enums/mission-status.enum';
 import { Tracking } from 'src/tracking/entities/tracking.entity';
 import { TrackingType } from 'src/tracking/enums/tracking-type.enum';
 import { TrackingStatus } from 'src/tracking/enums/tracking-status.enum';
+import { PaginationDto } from 'src/users/dto/pagination.dto';
+import { SearchDto } from 'src/users/dto/search-dto';
 
 @Injectable()
 export class MissionsService {
@@ -26,17 +28,56 @@ export class MissionsService {
     return mission;
   }
 
-  async findAll() {
+  async missions() {
     const missions = await this.repo.find({
-      relations: ['delivery', 'orders'],
+      relations: ['delivery', 'orders', 'tracking'],
       order: {
         orders: {
+          createdAt: 'ASC',
+        },
+        tracking: {
           createdAt: 'ASC',
         },
       },
     });
 
     return missions;
+  }
+
+  async findAll({ page, limit }: PaginationDto, { keyword }: SearchDto) {
+    const skip = (page - 1) * limit;
+
+    const [missions, totalCount] = await this.repo.findAndCount({
+      skip,
+      take: limit,
+      where: [
+        {
+          delivery: {
+            email: ILike(`%${keyword}%`),
+          },
+        },
+      ],
+      relations: ['delivery', 'orders', 'tracking'],
+      order: {
+        orders: {
+          createdAt: 'ASC',
+        },
+        tracking: {
+          createdAt: 'ASC',
+        },
+      },
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+
+    return {
+      items: missions,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+    };
   }
 
   findOne(id: number) {

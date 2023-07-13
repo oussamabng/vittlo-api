@@ -137,12 +137,20 @@ type ResponseOrderDto {
   hasNextPage: Boolean
 }
 
+type ResponseMissionDto {
+  items: [Mission!]
+  startingAdress: String
+  endingAdress: String
+  numberOfOrders: Int
+}
+
 type Query {
   getAllDeliveryUsers(pagination: PaginationDto!, search: SearchDto!): ResponseUserDto!
   me: User!
   helloWorld: String!
   orders(pagination: PaginationDto!, search: SearchDto!): ResponseOrderDto!
   order(id: Int!): Order!
+  paginatedMissions(pagination: PaginationDto!, search: SearchDto!): ResponseMissionDto!
   missions: [Mission!]!
   currentPositionMission(id: Int!): Order
   mission(id: Int!): Mission!

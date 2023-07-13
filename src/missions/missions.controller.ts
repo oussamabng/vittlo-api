@@ -5,8 +5,8 @@ import { MissionsService } from './missions.service';
 export class MissionsController {
   constructor(private readonly missionsService: MissionsService) {}
 
-  @Get('missions')
+/*   @Get('missions')
   getAll() {
     return this.missionsService.findAll();
-  }
+  } */
 }

@@ -19,7 +19,8 @@ export class OrdersResolver {
   }
 
   /*   @UseGuards(AdminGuard)
-   */ @Query(() => ResponseOrderDto, { name: 'orders' })
+   */
+  @Query(() => ResponseOrderDto, { name: 'orders' })
   findAll(
     @Args('pagination') paginationDto: PaginationDto,
     @Args('search') searchDto: SearchDto,

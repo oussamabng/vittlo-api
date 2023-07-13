@@ -11,6 +11,8 @@ import { Mission } from './entities/mission.entity';
 import { CreateMissionDto } from './dto/create-mission.dto';
 import { ResponseMissionDto } from './dto/response-missions.dto';
 import { Order } from 'src/orders/entities/order.entity';
+import { SearchDto } from 'src/users/dto/search-dto';
+import { PaginationDto } from 'src/users/dto/pagination.dto';
 
 @Resolver(() => Mission)
 export class MissionsResolver {
@@ -21,9 +23,17 @@ export class MissionsResolver {
     return this.missionsService.create();
   }
 
+  @Query(() => ResponseMissionDto, { name: 'paginatedMissions' })
+  findAll(
+    @Args('pagination') paginationDto: PaginationDto,
+    @Args('search') searchDto: SearchDto,
+  ) {
+    return this.missionsService.findAll(paginationDto, searchDto);
+  }
+
   @Query(() => [Mission], { name: 'missions' })
-  findAll() {
-    return this.missionsService.findAll();
+  missions() {
+    return this.missionsService.missions();
   }
 
   @Query(() => Order, { name: 'currentPositionMission', nullable: true })
