@@ -118,7 +118,7 @@ export class OrdersService {
           productName: ILike(`%${keyword}%`),
         },
       ],
-      relations: ['delivery', 'mission'],
+      relations: ['mission', 'mission.delivery'],
       order: {
         createdAt: 'ASC',
       },

@@ -343,12 +343,6 @@ export class UsersService implements OnModuleInit {
       throw new BadRequestException('Mission already have a delivery');
     }
 
-    if (mission.delivery.id === user.id) {
-      throw new BadRequestException(
-        'Delivery already assigned to this mission',
-      );
-    }
-
     mission.delivery = user;
     mission.status = MissionStatus.IN_PROGRESS;
 
