@@ -14,10 +14,6 @@ import { Mission } from './missions/entities/mission.entity';
 import { Order } from './orders/entities/order.entity';
 import { TrackingModule } from './tracking/tracking.module';
 import { Tracking } from './tracking/entities/tracking.entity';
-import {
-  ApolloServerPluginLandingPageLocalDefault,
-  ApolloServerPluginLandingPageProductionDefault,
-} from 'apollo-server-core';
 
 @Module({
   imports: [
@@ -37,15 +33,8 @@ import {
     }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
-      playground: false,
-      debug: false,
-      introspection: true,
-      cache: 'bounded',
-      plugins: [
-        process.env.NODE_ENV === 'production'
-          ? ApolloServerPluginLandingPageProductionDefault()
-          : ApolloServerPluginLandingPageLocalDefault(),
-      ],
+      playground: true,
+      debug: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     UsersModule,
