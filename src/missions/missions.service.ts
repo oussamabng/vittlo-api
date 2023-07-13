@@ -112,6 +112,9 @@ export class MissionsService {
     const mission = await this.repo.findOne({
       where: { id },
     });
+    if (mission.status === MissionStatus.COMPLETED) {
+      return 'Mission already finished all orders';
+    }
     if (!mission) {
       throw new BadRequestException('Mission not found');
     }
@@ -149,7 +152,7 @@ export class MissionsService {
         currentPlace: orderDone.shippingAddress,
       });
       await this.repoTracking.save(trackingMission);
-    } else if (mission.status !== MissionStatus.COMPLETED) {
+    } else {
       mission.status = MissionStatus.COMPLETED;
       this.repo.save(mission);
 
