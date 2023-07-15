@@ -21,10 +21,10 @@ import { DeliveryGuard } from './guards/delivery.guard';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation(() => String)
+  /*   @Mutation(() => String)
   createAdmin(@Args('input') createAdminDto: CreateAdminDto) {
     return this.usersService.createAdmin(createAdminDto);
-  }
+  } */
 
   @UseGuards(AdminGuard)
   @Mutation(() => User)
@@ -84,10 +84,5 @@ export class UsersResolver {
     @CurrentUserId() userId: number,
   ) {
     return this.usersService.addDeliveryToMission(missionId, userId);
-  }
-
-  @Query(() => String)
-  helloWorld() {
-    return 'Hello';
   }
 }

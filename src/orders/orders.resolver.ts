@@ -12,14 +12,13 @@ import { AdminGuard } from 'src/users/guards/admin.guard';
 export class OrdersResolver {
   constructor(private readonly ordersService: OrdersService) {}
 
-  /*   @UseGuards(AdminGuard) */
+  @UseGuards(AdminGuard)
   @Mutation(() => Order)
   createOrder(@Args('input') createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
   }
 
-  /*   @UseGuards(AdminGuard)
-   */
+  @UseGuards(AdminGuard)
   @Query(() => ResponseOrderDto, { name: 'orders' })
   findAll(
     @Args('pagination') paginationDto: PaginationDto,
@@ -28,12 +27,13 @@ export class OrdersResolver {
     return this.ordersService.findAll(paginationDto, searchDto);
   }
 
-  /*   @UseGuards(AdminGuard)
-   */ @Query(() => Order, { name: 'order' })
+  @UseGuards(AdminGuard)
+  @Query(() => Order, { name: 'order' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.ordersService.findOne(id);
   }
 
+  @UseGuards(AdminGuard)
   @Mutation(() => Order, { name: 'addOrderToMission' })
   addOrderToMission(
     @Args('missionId', { type: () => Int }) missionId: number,

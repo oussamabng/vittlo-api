@@ -147,7 +147,6 @@ type ResponseMissionDto {
 type Query {
   getAllDeliveryUsers(pagination: PaginationDto!, search: SearchDto!): ResponseUserDto!
   me: User!
-  helloWorld: String!
   orders(pagination: PaginationDto!, search: SearchDto!): ResponseOrderDto!
   order(id: Int!): Order!
   paginatedMissions(pagination: PaginationDto!, search: SearchDto!): ResponseMissionDto!
@@ -169,7 +168,6 @@ input SearchDto {
 }
 
 type Mutation {
-  createAdmin(input: CreateAdminDto!): String!
   createDelivery(input: CreateDeliveryDto!): User!
   loginAdmin(input: LoginAdmin!): ResponseTokenDto!
   loginDelivery(input: LoginAdmin!): DeliveryResponseDto!
@@ -179,13 +177,7 @@ type Mutation {
   addDeliveryToMission(missionId: Float!): User!
   createOrder(input: CreateOrderDto!): Order!
   addOrderToMission(missionId: Int!, orderId: Int!): Order!
-  createMission: Mission!
   moveToNextOrder(id: Int!): String!
-}
-
-input CreateAdminDto {
-  email: String!
-  password: String!
 }
 
 input CreateDeliveryDto {

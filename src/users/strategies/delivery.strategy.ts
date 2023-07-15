@@ -22,6 +22,7 @@ export class DeliveryStrategy extends PassportStrategy(Strategy, 'delivery') {
 
   async validate(payload: JwtPayload) {
     const userId = payload.sub ? payload.sub : null;
+
     const exp = payload?.exp;
 
     if (new Date() > new Date(exp * 1000)) {
@@ -30,11 +31,7 @@ export class DeliveryStrategy extends PassportStrategy(Strategy, 'delivery') {
 
     const user = await this.userService.findOne(userId);
 
-    if (
-      user?.id === userId &&
-      user?.role === UserRole.DELIVERY &&
-      user?.status === UserStatus.ACTIVE
-    ) {
+    if (user?.id === userId && user?.status === UserStatus.ACTIVE) {
       return { userId };
     } else return false;
   }

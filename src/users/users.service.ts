@@ -381,7 +381,9 @@ export class UsersService implements OnModuleInit {
   }
 
   async me(userId: number) {
-    const user = await this.repo.findOne({ where: { id: userId } });
+    const user = await this.repo.findOne({
+      where: { id: userId },
+    });
 
     if (!user) {
       throw new NotFoundException('user not found');
