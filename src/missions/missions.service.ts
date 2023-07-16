@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMissionDto, OptimalRouteDto } from './dto/create-mission.dto';
 import { Mission } from './entities/mission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { ResponseMissionDto } from './dto/response-missions.dto';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
@@ -50,19 +50,16 @@ export class MissionsService {
     const [missions, totalCount] = await this.repo.findAndCount({
       skip,
       take: limit,
-      where: [
+      /*    where: [
         {
           delivery: {
-            email: ILike(`%${keyword}%`),
+            email: Like(`%${keyword}%`),
           },
         },
-      ],
+      ], */
       relations: ['delivery', 'orders', 'tracking'],
       order: {
         orders: {
-          createdAt: 'ASC',
-        },
-        tracking: {
           createdAt: 'ASC',
         },
       },
