@@ -12,6 +12,8 @@ import { TrackingType } from 'src/tracking/enums/tracking-type.enum';
 import { TrackingStatus } from 'src/tracking/enums/tracking-status.enum';
 import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { SearchDto } from 'src/users/dto/search-dto';
+import { User } from 'src/users/entities/user.entity';
+import { UserStatus } from 'src/users/enums/user-status.dto';
 
 @Injectable()
 export class MissionsService {
@@ -19,6 +21,7 @@ export class MissionsService {
     @InjectRepository(Mission) private repo: Repository<Mission>,
     @InjectRepository(Tracking) private repoTracking: Repository<Tracking>,
     @InjectRepository(Order) private repoOrders: Repository<Order>,
+    @InjectRepository(User) private repoUsers: Repository<User>,
   ) {}
 
   async create() {
@@ -108,6 +111,7 @@ export class MissionsService {
   async moveToNextOrder(id: number) {
     const mission = await this.repo.findOne({
       where: { id },
+      relations: ['delivery'],
     });
 
     if (!mission) {
@@ -154,6 +158,13 @@ export class MissionsService {
     } else {
       mission.status = MissionStatus.COMPLETED;
       this.repo.save(mission);
+
+      //change status of user delivery
+      const user = await this.repoUsers.findOne({
+        where: { id: mission.delivery.id },
+      });
+      user.status = UserStatus.ACTIVE;
+      this.repoUsers.save(user);
 
       //add tracking
       const tracking = this.repoTracking.create({

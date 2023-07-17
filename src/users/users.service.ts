@@ -374,6 +374,8 @@ export class UsersService implements OnModuleInit {
       }),
     );
 
+    user.status = UserStatus.IN_MISSION;
+
     await this.repo.save(user);
     await this.repoMissions.save(mission);
 

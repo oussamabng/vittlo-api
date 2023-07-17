@@ -31,7 +31,11 @@ export class DeliveryStrategy extends PassportStrategy(Strategy, 'delivery') {
 
     const user = await this.userService.findOne(userId);
 
-    if (user?.id === userId && user?.status === UserStatus.ACTIVE) {
+    if (
+      user?.id === userId &&
+      (user?.status === UserStatus.ACTIVE ||
+        user?.status === UserStatus.IN_MISSION)
+    ) {
       return { userId };
     } else return false;
   }

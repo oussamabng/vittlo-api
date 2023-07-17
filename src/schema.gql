@@ -106,6 +106,7 @@ enum UserRole {
 
 enum UserStatus {
   ACTIVE
+  IN_MISSION
   INACTIVE
   PENDING
 }
