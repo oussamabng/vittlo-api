@@ -11,6 +11,9 @@ import { OrderStatus } from './enums/order-status.enum';
 import { Tracking } from 'src/tracking/entities/tracking.entity';
 import { TrackingType } from 'src/tracking/enums/tracking-type.enum';
 import { TrackingStatus } from 'src/tracking/enums/tracking-status.enum';
+import { PythonShell } from 'python-shell';
+import * as path from 'path';
+import { DeliveryFees } from './enums/delivery-fees.enum';
 
 @Injectable()
 export class OrdersService {
@@ -49,6 +52,29 @@ export class OrdersService {
     senderFullName,
     senderPhoneNumber,
   }: CreateOrderDto) {
+    const agentCkpt = path.join(__dirname, '../..', 'src', 'model.ckpt');
+    const tf = {
+      evaluate: async (_: any, ordersFiltered: any, numVehicles: number) => {
+        const file = path.join(__dirname, '../..', 'src', 'agent');
+
+        const options = {
+          pythonPath: 'python3',
+          scriptPath: file,
+          args: [numVehicles.toString(), JSON.stringify(ordersFiltered)],
+        };
+
+        const data = await PythonShell.run('vrp.py', options);
+
+        const dataString: string = data.join(' ');
+        const sections = dataString
+          .split('--route--')
+          .map((section) => section.trim());
+
+        sections.shift();
+
+        return sections;
+      },
+    };
     const order = this.repo.create({
       productName,
       productPrice,
@@ -68,43 +94,116 @@ export class OrdersService {
     });
     await this.repoTracking.save(tracking);
 
-    const orders = await this.repo.find({
-      where: { status: OrderStatus.PENDING },
-    });
+    const ordersFiltered = await this.repo
+      .createQueryBuilder('orders')
+      .select([
+        'orders.destinationLat AS lat',
+        'orders.destinationLong AS long',
+        'orders.shippingAddress AS name',
+        'orders.id AS wilayanumber',
+      ])
+      .where('orders.status = :status', { status: OrderStatus.PENDING })
+      .getRawMany();
 
-    //check if number of PENDING orders is 10
-    if (orders.length >= 3) {
-      //if so create a mission and assign the orders to it
-      const mission = this.repoMissions.create({});
-      mission.orders = orders;
-      await this.repoMissions.save(mission);
+    //check if number of PENDING orders is 5
+    if (ordersFiltered.length >= 5) {
+      const numVehicles = 1;
 
-      //create the tracking mission that an mission is created
-      const trackingMission = this.repoTracking.create({
-        type: TrackingType.MISSION,
-        mission: mission,
-        currentPlace: orders[0]?.shippingAddress,
-      });
-      await this.repoTracking.save(trackingMission);
+      //pass to vrp agent
+      const data = await tf.evaluate(agentCkpt, ordersFiltered, numVehicles);
 
-      //assign all that last 5 orders to the same mission , and create a tracking status that they were added to a mission
       await Promise.all(
-        orders.map(async (order) => {
-          const tracking = this.repoTracking.create({
-            type: TrackingType.ORDER,
-            order: order,
-            status: TrackingStatus.IN_PROGRESS,
-          });
-          await this.repoTracking.save(tracking);
+        data.map(async (section, index) => {
+          const sectionArray = section.split(',');
+          const array = sectionArray[0].split('==');
+          array.shift();
+          array.pop();
+          console.log('array ', array);
+          const mission = this.repoMissions.create({ orders: [] });
+          await this.repoMissions.save(mission);
 
-          order.mission = mission;
-          order.status = OrderStatus.IN_PROGRESS;
-          await this.repo.save(order);
+          const orderPromises = array.map(async (item) => {
+            const [name, lat, long, id] = item.split('+');
+            const order = this.repo.findOne({
+              where: {
+                id: parseInt(id.trim()),
+              },
+            });
+            return order;
+          });
+          const orders = await Promise.all(orderPromises);
+
+          for (let i = 0; i < orders.length; i++) {
+            if (orders[i]) {
+              orders[i].status = OrderStatus.IN_PROGRESS;
+              orders[i].position = i + 1;
+              await this.repo.save(orders[i]);
+              const tracking = this.repoTracking.create({
+                type: TrackingType.ORDER,
+                order: orders[i],
+                status: TrackingStatus.IN_PROGRESS,
+              });
+
+              await this.repoTracking.save(tracking);
+            }
+          }
+          mission.orders = orders;
+          await this.repoMissions.save(mission);
+
+          const trackingMission = this.repoTracking.create({
+            type: TrackingType.MISSION,
+            mission: mission,
+            currentPlace: orders[0]?.shippingAddress,
+          });
+          await this.repoTracking.save(trackingMission);
         }),
       );
     }
 
     return order;
+  }
+
+  async createMultipleOrders() {
+    const wilayaData = [
+      { lat: 35.698822, long: -0.63887435, name: 'Oran', wilayanumber: 17 },
+      { lat: 36.47004, long: 2.8277, name: 'Blida', wilayanumber: 18 },
+      {
+        name: 'Ain Temouchent',
+        wilayanumber: 46,
+        lat: 35.30661476829141,
+        long: -1.1328402209200905,
+      },
+      {
+        name: 'Sidi Bel Abbès',
+        wilayaNumber: 22,
+        lat: 35.21231741768364,
+        long: -0.6268997608592823,
+      },
+      /*    {
+        name: 'Tlemcen',
+        wilayanumber: 13,
+        lat: 34.88478069154205,
+        long: -1.3201439737862923,
+      }, */
+    ];
+
+    await Promise.all(
+      wilayaData.map(async (wilaya) => {
+        const order = await this.create({
+          productName: 'name',
+          productPrice: 1000,
+          deliveryFees: DeliveryFees.MEDIUM_DISTANCE,
+          destinationLat: wilaya.lat.toString(),
+          destinationLong: wilaya.long.toString(),
+          shippingAddress: wilaya.name,
+          senderFullName: 'name',
+          senderPhoneNumber: '0541523275',
+        });
+        await this.repo.save(order);
+      }),
+    );
+
+    return 'CREATED';
   }
 
   async findAll({ page, limit }: PaginationDto, { keyword }: SearchDto) {
@@ -120,7 +219,7 @@ export class OrdersService {
       ],
       relations: ['mission', 'mission.delivery'],
       order: {
-        createdAt: 'ASC',
+        createdAt: 'DESC',
       },
     });
 

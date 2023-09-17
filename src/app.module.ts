@@ -26,7 +26,7 @@ import { Tracking } from './tracking/entities/tracking.entity';
       port: 5432,
       username: 'postgres',
       password: 'password',
-      database: 'oussama',
+      database: 'demonstration',
       entities: [User, Mission, Order, Tracking],
       synchronize: true,
       autoLoadEntities: true,

@@ -6,7 +6,6 @@ import { AuthGuard } from '@nestjs/passport';
 export class RefreshGuard extends AuthGuard('refresh') {
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
-    console.log('res', ctx.getContext().req);
     return ctx.getContext().req;
   }
 }

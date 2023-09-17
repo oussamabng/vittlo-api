@@ -26,6 +26,11 @@ export class UsersResolver {
     return this.usersService.createAdmin(createAdminDto);
   } */
 
+  @Query(() => [String])
+  test() {
+    return this.usersService.test();
+  }
+
   @UseGuards(AdminGuard)
   @Mutation(() => User)
   createDelivery(@Args('input') createDeliveryDto: CreateDeliveryDto) {

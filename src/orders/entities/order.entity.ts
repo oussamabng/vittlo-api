@@ -60,6 +60,10 @@ export class Order {
   @Column({ nullable: true, type: 'real' })
   destinationLat: string;
 
+  @Field(() => Number)
+  @Column({ default: 0 })
+  position: number;
+
   @Field(() => Float)
   @Column({ nullable: true, type: 'real' })
   destinationLong: string;

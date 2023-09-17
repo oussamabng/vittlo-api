@@ -54,6 +54,7 @@ type Order {
   productPrice: Float!
   shippingAddress: String!
   destinationLat: Float!
+  position: Float!
   destinationLong: Float!
   delivery: User
   tracking: [Tracking!]
@@ -145,15 +146,27 @@ type ResponseMissionDto {
   numberOfOrders: Int
 }
 
+type LatLongDto {
+  latitude: Float
+  longitude: Float
+}
+
 type Query {
+  test: [String!]!
   getAllDeliveryUsers(pagination: PaginationDto!, search: SearchDto!): ResponseUserDto!
   me: User!
+  createMultipleOrders: String!
   orders(pagination: PaginationDto!, search: SearchDto!): ResponseOrderDto!
   order(id: Int!): Order!
   paginatedMissions(pagination: PaginationDto!, search: SearchDto!): ResponseMissionDto!
   missions: [Mission!]!
   currentPositionMission(id: Int!): Order
   mission(id: Int!): Mission!
+  getActualMission: Mission!
+  origin: LatLongDto!
+  analytics: String!
+  destination: LatLongDto!
+  missionHadFinishedOrders: Boolean!
   tracking(id: Int!): Tracking!
   orderTracking(order_id: Int!): [Tracking!]!
   getOrderTrackingByCode(trackingCode: String!): [Tracking!]!
@@ -186,6 +199,9 @@ input CreateDeliveryDto {
   password: String!
   licensePlate: String
   phoneNumber: String
+  adress: String
+  carModel: String
+  carColor: String
 }
 
 input LoginAdmin {

@@ -27,6 +27,8 @@ import { Tracking } from 'src/tracking/entities/tracking.entity';
 import { TrackingType } from 'src/tracking/enums/tracking-type.enum';
 import { TrackingStatus } from 'src/tracking/enums/tracking-status.enum';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
+import { PythonShell } from 'python-shell';
+import * as path from 'path';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -82,11 +84,81 @@ export class UsersService implements OnModuleInit {
     return 'Admin Account Created Successfully.';
   }
 
+  async test() {
+    const file = path.join(__dirname, '../..', 'src', 'agent');
+    const numVehicles = 1;
+    const wilayaData = [
+      {
+        lat: 35.93198908644244,
+        long: 0.09005483466593417,
+        name: 'Mostaganem',
+        wilayanumber: 16,
+      },
+      { lat: 35.698822, long: -0.63887435, name: 'Oran', wilayanumber: 17 },
+      { lat: 36.47004, long: 2.8277, name: 'Blida', wilayanumber: 18 },
+      {
+        name: 'Ain Temouchent',
+        wilayanumber: 46,
+        lat: 35.30661476829141,
+        long: -1.1328402209200905,
+      },
+
+      {
+        name: 'Tlemcen',
+        wilayanumber: 13,
+        lat: 34.88478069154205,
+        long: -1.3201439737862923,
+      },
+    ];
+
+    const options = {
+      pythonPath: 'python3',
+      scriptPath: file,
+      args: [numVehicles.toString(), JSON.stringify(wilayaData)],
+    };
+
+    const data = await PythonShell.run('vrp.py', options);
+
+    const dataString: string = data.join(' '); // Join array elements into a single string
+    const sections = dataString
+      .split('--route--')
+      .map((section) => section.trim());
+
+    sections.shift();
+
+    console.log('sections', sections);
+
+    await Promise.all(
+      sections.map((section) => {
+        console.log('CREATE MISSION');
+        console.log('CREATE TRACKING FOR MISSION');
+
+        const sectionArray = section.split(',');
+        const array = sectionArray[0].split('==');
+        array.shift();
+        array.pop();
+
+        array.forEach((item) => {
+          console.log('Add this order to mission :::  ');
+          const [name, lat, long, id] = item.split('-');
+          console.log(
+            name.trim(),
+            parseFloat(lat.trim()),
+            parseFloat(long.trim()),
+            parseInt(id.trim()),
+          );
+          console.log('create tracking to this order');
+        });
+      }),
+    );
+
+    return data;
+  }
+
   async createDelivery({
     email,
     password,
     adress,
-    dateOfBirth,
     carModel,
     licensePlate,
     phoneNumber,
@@ -103,7 +175,6 @@ export class UsersService implements OnModuleInit {
       password: hash,
       role: UserRole.DELIVERY,
       adress,
-      dateOfBirth,
       carModel,
       licensePlate,
       carColor,

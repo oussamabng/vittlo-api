@@ -16,6 +16,9 @@ import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/users/guards/admin.guard';
 import { DeliveryGuard } from 'src/users/guards/delivery.guard';
+import { CurrentUserId } from 'src/users/interceptors/current-user-id.decorator';
+import { Double } from 'typeorm';
+import { LatLongDto } from './dto/lat-long.dto';
 
 @Resolver(() => Mission)
 export class MissionsResolver {
@@ -55,6 +58,35 @@ export class MissionsResolver {
   @Mutation(() => String, { name: 'moveToNextOrder' })
   moveToNextOrder(@Args('id', { type: () => Int }) id: number) {
     return this.missionsService.moveToNextOrder(id);
+  }
+
+  @UseGuards(DeliveryGuard)
+  @Query(() => Mission, { name: 'getActualMission' })
+  getActualMission(@CurrentUserId() userId: number) {
+    return this.missionsService.getActualMission(userId);
+  }
+
+  @UseGuards(DeliveryGuard)
+  @Query(() => LatLongDto)
+  origin(@CurrentUserId() userId: number) {
+    return this.missionsService.origin(userId);
+  }
+
+  @Query(() => String)
+  analytics(@CurrentUserId() userId: number) {
+    return this.missionsService.analytics(userId);
+  }
+
+  @UseGuards(DeliveryGuard)
+  @Query(() => LatLongDto)
+  destination(@CurrentUserId() userId: number) {
+    return this.missionsService.destination(userId);
+  }
+
+  @UseGuards(DeliveryGuard)
+  @Query(() => Boolean)
+  missionHadFinishedOrders(@CurrentUserId() userId: number) {
+    return this.missionsService.missionHadFinishedOrders(userId);
   }
 
   /*   @Mutation(() => Mission)

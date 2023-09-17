@@ -24,7 +24,7 @@ export class Tracking {
   id: number;
 
   @Field(() => String, { nullable: true })
-  @Column({ nullable: true, default: 'Alger' })
+  @Column({ nullable: true })
   currentPlace: string;
 
   @Field(() => TrackingStatus)

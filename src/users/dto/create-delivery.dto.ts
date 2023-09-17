@@ -20,8 +20,15 @@ export class CreateDeliveryDto {
   @Field(() => String, { nullable: true })
   phoneNumber: string;
 
-  adress?: string;
-  dateOfBirth?: Date;
-  carModel?: string;
-  carColor?: string;
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  adress: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  carModel: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  carColor: string;
 }

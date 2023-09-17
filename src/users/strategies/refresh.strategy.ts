@@ -17,7 +17,6 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
   }
 
   async validate(payload: JwtPayload) {
-    console.log('payload', payload);
     const userId = payload.sub ? payload.sub : null;
     return { userId };
   }

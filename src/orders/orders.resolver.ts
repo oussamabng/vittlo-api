@@ -18,7 +18,12 @@ export class OrdersResolver {
     return this.ordersService.create(createOrderDto);
   }
 
-  @UseGuards(AdminGuard)
+  @Query(() => String)
+  createMultipleOrders() {
+    return this.ordersService.createMultipleOrders();
+  }
+
+  /* @UseGuards(AdminGuard) */
   @Query(() => ResponseOrderDto, { name: 'orders' })
   findAll(
     @Args('pagination') paginationDto: PaginationDto,
